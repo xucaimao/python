@@ -4,6 +4,7 @@ from pygame.locals import *
 pygame.init()
 bk_color=[255,255,255]
 posa=[400,500]
+posb_x=0
 posb_y=100
 screen=pygame.display.set_mode([800,600])
 clock=pygame.time.Clock()
