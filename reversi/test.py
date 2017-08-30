@@ -1,4 +1,12 @@
 import random,sys
+
+
+def clearlist(l):
+    # 清空列表
+    while l:
+        l.pop()
+    return l
+
 reverslist=[]
 a=[]
 for p in range(2):
@@ -10,8 +18,7 @@ print(len(reverslist))
 
 print(reverslist)
 
-while reverslist:
-    reverslist.pop()
+clearlist(reverslist)
 
 print(len(reverslist))
 
