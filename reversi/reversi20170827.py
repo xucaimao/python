@@ -5,7 +5,7 @@
 import pygame,sys,time
 
 class Reversi:
-    # 棋盘(二维列表)。-1黑棋，0空格，1白棋，>100则表示该位置是一种合理的落子点，
+    # 棋盘(二维列表)-1黑棋，0空格，1白棋，>100则表示该位置是一种合理的落子点，
     # 其值减去100所得结果，表示在改点落子后，可以翻转的对方棋子的数量
     def __init__(self,stpiece):
         self.start_piece=stpiece        # 初始棋子，即谁先走
@@ -19,7 +19,6 @@ class Reversi:
         self.score = [0,0]              # 当前局比分(黑比白)
         self.step=0                     # 当前局步数
         self.record=[]                  # 棋谱记录.undo可以通过棋谱从第一步开始计算的形式，以计算时间换取存储空间(二维列表)
-
         self.resetBoard()
 
     def clearlist(self,l):
@@ -31,6 +30,7 @@ class Reversi:
     def resetBoard(self):
         # 游戏数据清零,每个玩家有两个棋子在棋盘的中央
         # 用于开始新游戏
+        # 需要增加考虑白棋先行的情况
         self.clearlist(self.board)
         for i in range(8):
             self.board.append([0] * 8)
@@ -43,7 +43,6 @@ class Reversi:
         self.roundscore = 0,0
         self.score =0,0
         self.step = 0
-
         self.clearlist(self.pointlist)
         self.clearlist(self.reverslist)
         self.clearlist(self.record)
@@ -174,6 +173,21 @@ class Reversi:
             self.judge_allpoint()                       #预先判断下一步的所有可能走法
 
 
+    def undo(self,stp):
+        #stp为悔棋几步
+        for i in range(stp):
+            if len(self.record)<=0:
+                pygame.display.quit()
+                print("undo error!!")
+                sys.exit()
+            self.record.pop()                           #删除最近的一步棋
+        rec=self.record[:]                              #复制下棋记录
+        self.resetBoard()                               #棋盘复原
+        for r,c in rec:
+            self.addpiece([r,c])                        #从零开始复盘
+
+
+
 
 #function of main
 
@@ -296,21 +310,24 @@ while True:
             row,col=cursor2button(cursor_x,cursor_y)
             #刷新屏幕
             drawscreen(screen,myreversi,surflist,[row,col])
+
             if row==-1 and col ==-1:
                 #非法点击，提示音，进入下一次for循环
                 continue
+
             if row==10 and col==0:
                 #离开
                 pygame.display.quit()
                 print("Player select quit game")
                 sys.exit()
+
             elif row==10 and col==1:
                 # 悔棋
-                if len(myreversi.record)<=1:
-                    continue
+                if len(myreversi.record)>0:
+                    myreversi.undo(1)
+                    drawscreen(screen, myreversi, surflist, [-1, -1])
 
-                pass
-
+                continue
 
             elif row==10 and col==2:
                 # 认输
@@ -323,15 +340,20 @@ while True:
                 continue
             else:
                 #棋盘上的点击
-                myreversi.addpiece([row,col])
-                drawscreen(screen, myreversi, surflist, [row, col])
-
-
-
-
-
-
-
-
-
-
+                #是否还有合理位置下棋，此次逻辑还有问题，需要调整
+                if myreversi.enabalemove:
+                    myreversi.addpiece([row,col])
+                    drawscreen(screen, myreversi, surflist, [row, col])
+                else:
+                    if myreversi.score[0] > myreversi.score[1]:
+                        pygame.display.quit()
+                        print("BLACK WIN!!!")
+                        sys.exit()
+                    elif myreversi.score[0] < myreversi.score[1]:
+                        pygame.display.quit()
+                        print("WHITE WIN!!!")
+                        sys.exit()
+                    else:
+                        pygame.display.quit()
+                        print("DOUBLE WIN!!!")
+                        sys.exit()
