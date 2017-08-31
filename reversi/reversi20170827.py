@@ -40,7 +40,6 @@ class Reversi:
         self.board[4][4] = -1
 
         self.currten_piece = self.start_piece
-        self.roundscore = 0,0
         self.score =0,0
         self.step = 0
         self.clearlist(self.pointlist)
@@ -186,6 +185,14 @@ class Reversi:
         for r,c in rec:
             self.addpiece([r,c])                        #从零开始复盘
 
+    def giveup(self):
+        #认输，为对方加分
+        if self.currten_piece==-1:
+            self.roundscore[1]=+1
+        else:
+            self.roundscore[0] = +1
+        self.resetBoard()
+
 
 
 
@@ -207,6 +214,9 @@ buttonleft=628
 buttonright=876
 bsize=62     #按钮尺寸
 
+global debug
+debug=False          #为True则显示提示子
+
 
 
 def drawscreen(win,reversi,surflist,bpos):
@@ -219,17 +229,31 @@ def drawscreen(win,reversi,surflist,bpos):
         win.blit(surflist[0], [0, 0])
     else:
         win.blit(surflist[1], [0, 0])
-    #显示当前局的比分
-    font1 = pygame.font.Font(None, 32)
 
+    hz=['零','壹','贰','叁','肆','伍']
+
+    font1 = pygame.font.Font("FZLBFW.ttf", 20)      #数字大小
+    font2 = pygame.font.Font("FZLBFW.ttf", 32)      #汉字大小
+    #显示button坐标
     str1 = str(bpos[0]) + " , " + str(bpos[1])
-    scorestr = str(reversi.score[0]) + " : " + str(reversi.score[1])
-    txt1_surf = font1.render(str1, 1, (0, 0, 0))
-    score_surf = font1.render(scorestr, 1, (94,39,7))
-    #txt3_surf = font1.render(str3, 1, (0, 0, 255))
-    win.blit(txt1_surf, [640, 250])
-    win.blit(score_surf, [730,36])
-    #win.blit(txt3_surf, [605, 450])
+    str1_surf = font1.render(str1, 1, (0, 0, 0))
+    # 显示当前局的比分
+    scorestr1 = str(reversi.score[0]) + " : " + str(reversi.score[1])
+    score_surf1 = font1.render(scorestr1, 1, (94,39,7))
+    # 显示总比分
+    scorestr2 = str(hz[reversi.roundscore[0]]) + " : " + str(hz[reversi.roundscore[1]])
+    score_surf2 = font2.render(scorestr2, 1, (150,0,0))
+    # 显示步数
+    str2=str(reversi.step)
+    str2_surf=font1.render(str2,1,(0,0,0))
+
+    win.blit(str1_surf, [640, 237])
+    win.blit(str2_surf, [830, 237])
+    win.blit(score_surf1, [735,85])
+    win.blit(score_surf2, [710,32])
+
+
+
 
     #开始显示整个棋盘
 
@@ -241,7 +265,7 @@ def drawscreen(win,reversi,surflist,bpos):
             elif reversi.board[r][c] == 1:
                 #白棋
                 win.blit(surflist[3], [c * gsize  + boardtopleft, r * gsize + boardtopleft])
-            elif reversi.board[r][c] >= 100:
+            elif reversi.board[r][c] >= 100 and debug:
                 #提示棋
                 win.blit(surflist[4], [c * gsize  + boardtopleft, r * gsize + boardtopleft])
                 str2=str(reversi.board[r][c]-100)
@@ -312,11 +336,12 @@ while True:
             drawscreen(screen,myreversi,surflist,[row,col])
 
             if row==-1 and col ==-1:
-                #非法点击，提示音，进入下一次for循环
+                # 非法点击，提示音，进入下一次for循环
                 continue
 
             if row==10 and col==0:
-                #离开
+                # 离开，即退出游戏
+                # 需增加确认环节，防止误操作
                 pygame.display.quit()
                 print("Player select quit game")
                 sys.exit()
@@ -331,16 +356,20 @@ while True:
 
             elif row==10 and col==2:
                 # 认输
-                pass
-            elif row==10 and col==3:
-                # 重玩
-                myreversi.resetBoard()
+                # 需增加确认环节，防止误操作
+                myreversi.giveup()
+                drawscreen(screen, myreversi, surflist, [-1, -1])
+                continue
 
+            elif row==10 and col==3:
+                # 当前局重玩，不影响总比分
+                # 需增加确认环节，防止误操作
+                myreversi.resetBoard()
                 drawscreen(screen, myreversi, surflist, [-1, -1])
                 continue
             else:
-                #棋盘上的点击
-                #是否还有合理位置下棋，此次逻辑还有问题，需要调整
+                # 棋盘上的点击
+                # 是否还有合理位置下棋，此次逻辑还有问题，需要调整
                 if myreversi.enabalemove:
                     myreversi.addpiece([row,col])
                     drawscreen(screen, myreversi, surflist, [row, col])

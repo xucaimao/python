@@ -2,6 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821b4261-4dab-464a-b8ff-96e785e32210" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qipan9x6.psd" afterPath="$PROJECT_DIR$/reversi/qipan9x6.psd" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qipan9x6_b.png" afterPath="$PROJECT_DIR$/reversi/qipan9x6_b.png" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qipan9x6_w.png" afterPath="$PROJECT_DIR$/reversi/qipan9x6_w.png" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/reversi20170827.py" afterPath="$PROJECT_DIR$/reversi/reversi20170827.py" />
     </list>
@@ -37,14 +40,14 @@
       <file leaf-file-name="reversi20170827.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/reversi/reversi20170827.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="1002">
-              <caret line="342" column="41" lean-forward="false" selection-start-line="342" selection-start-column="41" selection-end-line="342" selection-end-column="41" />
+            <state relative-caret-position="440">
+              <caret line="227" column="35" lean-forward="true" selection-start-line="227" selection-start-column="35" selection-end-line="227" selection-end-column="35" />
               <folding>
-                <element signature="e#1796#2999#0" expanded="false" />
-                <element signature="e#3039#4246#0" expanded="false" />
-                <element signature="e#4284#4682#0" expanded="false" />
-                <element signature="e#6765#8255#0" expanded="false" />
-                <element signature="e#8287#8727#0" expanded="false" />
+                <element signature="e#91#6502#0" expanded="false" />
+                <element signature="e#1766#2969#0" expanded="false" />
+                <element signature="e#3009#4216#0" expanded="false" />
+                <element signature="e#4254#4652#0" expanded="false" />
+                <element signature="e#8857#9297#0" expanded="false" />
               </folding>
             </state>
           </provider>
@@ -322,7 +325,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504161889218</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="To achieve the func undo">
+      <created>1504167366051</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1504167366051</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView">
@@ -409,7 +419,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="edit at 20170831" />
-    <option name="LAST_COMMIT_MESSAGE" value="edit at 20170831" />
+    <MESSAGE value="To achieve the func undo" />
+    <option name="LAST_COMMIT_MESSAGE" value="To achieve the func undo" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -795,14 +806,14 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/reversi/reversi20170827.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1002">
-          <caret line="342" column="41" lean-forward="false" selection-start-line="342" selection-start-column="41" selection-end-line="342" selection-end-column="41" />
+        <state relative-caret-position="440">
+          <caret line="227" column="35" lean-forward="true" selection-start-line="227" selection-start-column="35" selection-end-line="227" selection-end-column="35" />
           <folding>
-            <element signature="e#1796#2999#0" expanded="false" />
-            <element signature="e#3039#4246#0" expanded="false" />
-            <element signature="e#4284#4682#0" expanded="false" />
-            <element signature="e#6765#8255#0" expanded="false" />
-            <element signature="e#8287#8727#0" expanded="false" />
+            <element signature="e#91#6502#0" expanded="false" />
+            <element signature="e#1766#2969#0" expanded="false" />
+            <element signature="e#3009#4216#0" expanded="false" />
+            <element signature="e#4254#4652#0" expanded="false" />
+            <element signature="e#8857#9297#0" expanded="false" />
           </folding>
         </state>
       </provider>
