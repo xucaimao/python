@@ -1,6 +1,9 @@
 #黑白棋
 #根据书上程序，结合苹果手机里的一款黑白棋游戏，进行修改
 #采用面向对象的方法编程
+#待改进处：
+#一个底纹，根据选择进行合成，显示
+#动态显示棋子翻转过程
 
 import pygame,sys,time
 
@@ -134,7 +137,7 @@ class Reversi:
             if self.board[r][c] >= maxpiece:  # 必须是>=
                 maxrow = r
                 maxcol = c
-                maxpiece = board[r][c]
+                maxpiece = self.board[r][c]
 
         return maxrow, maxcol
 
@@ -162,11 +165,14 @@ class Reversi:
             #当前位置是合法位置，可以落子
             r,c=pos
             self.board[r][c] = self.currten_piece       #在当前位置落子
+            #此处增加显示落子
             self.step+=1                                #记录步数
             self.record.append([r,c])                   #记录棋谱
             p=self.pointlist.index(pos)                 #取得当前位置在合法落子点列表中的序号
             for r,c in self.reverslist[p]:              #取得翻转棋子的位置，开始翻转棋子
                 self.board[r][c]=self.currten_piece
+                #此处增加动态显示，如果是undo调用，则可以不动态显示
+
             self.getScore()                             #落子后重新计算分数
             self.currten_piece=-self.currten_piece      #落子后改变棋子颜色
             self.judge_allpoint()                       #预先判断下一步的所有可能走法
@@ -188,12 +194,10 @@ class Reversi:
     def giveup(self):
         #认输，为对方加分
         if self.currten_piece==-1:
-            self.roundscore[1]=+1
+            self.roundscore[1] += 1
         else:
-            self.roundscore[0] = +1
+            self.roundscore[0] += 1
         self.resetBoard()
-
-
 
 
 #function of main
@@ -215,9 +219,39 @@ buttonright=876
 bsize=62     #按钮尺寸
 
 global debug
-debug=False          #为True则显示提示子
+debug=False         #为True则显示各个合法落子点对应的翻转对方棋子的数量
 
+def drawmsgbox(win,surflist,msg):
+    win.blit(surflist,[92,162])
+    font = pygame.font.Font("FZLBFW.ttf", 32)  # 汉字大小
+    str1_surf = font.render(msg, 1, (0, 0, 0))
+    win.blit(str1_surf, [170,250])
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                cursor_x = event.pos[0]  # 取得x坐标
+                cursor_y = event.pos[1]
+                row, col = cursor2button(cursor_x, cursor_y)
+                if row == 4 and col == 3:
+                    return True
+                elif row == 4 and col == 4:
+                    return False
 
+def drawstartmenu(win,surflist):
+    win.blit(surflist,[0,0])
+    pygame.display.flip()
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                cursor_x = event.pos[0]  # 取得x坐标
+                cursor_y = event.pos[1]
+                row, col = cursor2button(cursor_x, cursor_y)
+                if col>=2 and col <=5:
+                    if row == 5:
+                        return True
+                    elif row == 3:
+                        return False
 
 def drawscreen(win,reversi,surflist,bpos):
     # 绘制棋盘,win为棋盘所在窗口，bpos为button的坐标[row,col]，此处只是为了测试程序，此参数可以删除
@@ -249,14 +283,10 @@ def drawscreen(win,reversi,surflist,bpos):
 
     win.blit(str1_surf, [640, 237])
     win.blit(str2_surf, [830, 237])
-    win.blit(score_surf1, [735,85])
+    win.blit(score_surf1, [730,85])
     win.blit(score_surf2, [710,32])
 
-
-
-
     #开始显示整个棋盘
-
     for r in range(8):
         for c in range(8):
             if reversi.board[r][c] == -1:
@@ -265,17 +295,15 @@ def drawscreen(win,reversi,surflist,bpos):
             elif reversi.board[r][c] == 1:
                 #白棋
                 win.blit(surflist[3], [c * gsize  + boardtopleft, r * gsize + boardtopleft])
-            elif reversi.board[r][c] >= 100 and debug:
+            elif reversi.board[r][c] >= 100:
                 #提示棋
                 win.blit(surflist[4], [c * gsize  + boardtopleft, r * gsize + boardtopleft])
-                str2=str(reversi.board[r][c]-100)
-                txt2_surf = font1.render(str2, 1, (0, 0, 0))
-                win.blit(txt2_surf, [c * gsize + boardtopleft+25, r * gsize + boardtopleft+25])
-
-
+                if debug:
+                    #显示各个合法位置的翻转棋子的数量
+                    str2=str(reversi.board[r][c]-100)
+                    txt2_surf = font1.render(str2, 1, (0, 0, 0))
+                    win.blit(txt2_surf, [c * gsize + boardtopleft+25, r * gsize + boardtopleft+25])
     pygame.display.flip()
-
-
 
 def cursor2button(x,y):
     #屏幕光标位置转换为按钮
@@ -292,18 +320,29 @@ def cursor2button(x,y):
         col=int((x-buttonleft)/bsize)
     return row,col
 
-
-
-
-
 #main
 #main
 pygame.init()
 screen=pygame.display.set_mode([900,600])
+
+#firstpiece为先手棋子的颜色。此处可以扩展选择先手棋子的颜色
+firstpiece=-1
+
+msgsurf=pygame.image.load("msgbox.png")
+startsurf=pygame.image.load("startmenu.png")
 #初始化用于显示的各种图片
 surflist=[]
-surflist.append(pygame.image.load("qipan9x6_b.png"))
-surflist.append(pygame.image.load("qipan9x6_w.png"))
+
+choice=drawstartmenu(screen,startsurf)
+if choice:
+    people2machine=True
+    surflist.append(pygame.image.load("qipan9x6_b_m.png"))
+    surflist.append(pygame.image.load("qipan9x6_w_m.png"))
+else:
+    people2machine=False
+    surflist.append(pygame.image.load("qipan9x6_b.png"))
+    surflist.append(pygame.image.load("qipan9x6_w.png"))
+
 surflist.append(pygame.image.load("qizi_black.png"))
 surflist.append(pygame.image.load("qizi_white.png"))
 surflist.append(pygame.image.load("qizi_tishi.png"))
@@ -311,23 +350,34 @@ surflist.append(pygame.image.load("qizi_tishi.png"))
 #初始化由于显示的各个坐标
 poslist=[]
 
-
-
-#firstpiece为先手棋子的颜色。此处可以扩展选择先手棋子的颜色
-firstpiece=-1
-
 #生成棋盘的实例
 myreversi=Reversi(firstpiece)
-
 drawscreen(screen,myreversi,surflist,[-1,-1])
 
-
 while True:
+    #首先判胜负
+    if myreversi.enabalemove==False:
+        if myreversi.score[0] > myreversi.score[1]:
+            msg="本局黑方胜利"
+            myreversi.roundscore[0]+=1
+        elif myreversi.score[0] < myreversi.score[1]:
+            msg="本局白方胜利"
+            myreversi.roundscore[1] += 1
+        else:
+            myreversi.roundscore[1] += 1
+            myreversi.roundscore[0] += 1
+        if drawmsgbox(screen, msgsurf, msg):
+            myreversi.resetBoard()
+        drawscreen(screen, myreversi, surflist, [-1, -1])
+
+        continue
+
     for event in pygame.event.get():
         #开始等待玩家落子或选择按钮
         if event.type == pygame.QUIT:
             pygame.display.quit()
             sys.exit()
+
         elif event.type == pygame.MOUSEBUTTONDOWN:
             cursor_x=event.pos[0]                 #取得x坐标
             cursor_y=event.pos[1]
@@ -342,14 +392,20 @@ while True:
             if row==10 and col==0:
                 # 离开，即退出游戏
                 # 需增加确认环节，防止误操作
-                pygame.display.quit()
-                print("Player select quit game")
-                sys.exit()
+                if drawmsgbox(screen,msgsurf,"娱乐结束退出游戏"):
+                    pygame.display.quit()
+                    print("Player select quit game")
+                    sys.exit()
+                drawscreen(screen, myreversi, surflist, [-1, -1])
+                continue
 
             elif row==10 and col==1:
                 # 悔棋
                 if len(myreversi.record)>0:
-                    myreversi.undo(1)
+                    if people2machine:
+                        myreversi.undo(2)
+                    else:
+                        myreversi.undo(1)
                     drawscreen(screen, myreversi, surflist, [-1, -1])
 
                 continue
@@ -357,32 +413,24 @@ while True:
             elif row==10 and col==2:
                 # 认输
                 # 需增加确认环节，防止误操作
-                myreversi.giveup()
+                if drawmsgbox(screen, msgsurf, "本局认输再来一盘"):
+                    myreversi.giveup()
                 drawscreen(screen, myreversi, surflist, [-1, -1])
                 continue
 
             elif row==10 and col==3:
                 # 当前局重玩，不影响总比分
                 # 需增加确认环节，防止误操作
-                myreversi.resetBoard()
+                if drawmsgbox(screen, msgsurf, "本局不算重来一盘"):
+                    myreversi.resetBoard()
                 drawscreen(screen, myreversi, surflist, [-1, -1])
                 continue
             else:
                 # 棋盘上的点击
-                # 是否还有合理位置下棋，此次逻辑还有问题，需要调整
-                if myreversi.enabalemove:
-                    myreversi.addpiece([row,col])
-                    drawscreen(screen, myreversi, surflist, [row, col])
-                else:
-                    if myreversi.score[0] > myreversi.score[1]:
-                        pygame.display.quit()
-                        print("BLACK WIN!!!")
-                        sys.exit()
-                    elif myreversi.score[0] < myreversi.score[1]:
-                        pygame.display.quit()
-                        print("WHITE WIN!!!")
-                        sys.exit()
-                    else:
-                        pygame.display.quit()
-                        print("DOUBLE WIN!!!")
-                        sys.exit()
+                myreversi.addpiece([row,col])
+                if people2machine:
+                    rr,cc=myreversi.computermove()
+                    myreversi.addpiece([rr,cc])
+                drawscreen(screen, myreversi, surflist, [row, col])
+
+
