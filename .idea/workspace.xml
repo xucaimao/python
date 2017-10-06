@@ -2,19 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="821b4261-4dab-464a-b8ff-96e785e32210" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/reversi/animatetest.py" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/reversi/reversi20171003.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/pieces_black.png" afterPath="$PROJECT_DIR$/reversi/pieces_black.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qipan9x6.png" afterPath="$PROJECT_DIR$/reversi/qipan9x6.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qipan9x6.psd" afterPath="$PROJECT_DIR$/reversi/qipan9x6.psd" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qizi_black.png" afterPath="$PROJECT_DIR$/reversi/qizi_black.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qizi_tishi.png" afterPath="$PROJECT_DIR$/reversi/qizi_tishi.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/qizi_white.png" afterPath="$PROJECT_DIR$/reversi/qizi_white.png" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/python.iml" afterPath="$PROJECT_DIR$/.idea/python.iml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/reversi20170827.py" afterPath="$PROJECT_DIR$/reversi/reversi20170827.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/reversi/test.py" afterPath="$PROJECT_DIR$/reversi/test.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -348,7 +336,14 @@
       <option name="project" value="LOCAL" />
       <updated>1503891393834</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="animate display has done!!!">
+      <created>1507309714290</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1507309714290</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TodoView">
@@ -435,7 +430,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="program with class" />
-    <option name="LAST_COMMIT_MESSAGE" value="program with class" />
+    <MESSAGE value="animate display has done!!!" />
+    <option name="LAST_COMMIT_MESSAGE" value="animate display has done!!!" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
