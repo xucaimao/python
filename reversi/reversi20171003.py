@@ -1,9 +1,13 @@
 #黑白棋
 #根据书上程序，结合苹果手机里的一款黑白棋游戏，进行修改
 #采用面向对象的方法编程
+#实现了动态显示棋子翻转过程。对整个显示的逻辑进行了重大的调整
+#改进了胜负判定
 #待改进处：
 #一个底纹，根据选择进行合成，显示
-#实现了动态显示棋子翻转过程。对整个显示的逻辑进行了重大的调整
+#当前棋子的动态显示
+#判定胜负的逻辑有问题，需要修改
+
 
 import pygame,sys,time
 
@@ -14,12 +18,12 @@ class Reversi:
         self.start_piece=stpiece        # 初始棋子，即谁先走
         self.board=[]                   # 棋盘(二维列表)。-1黑棋，0空格，1白棋，>=100则表示改位置是一种合理的走棋点，
         self.current_piece=stpiece      # 当前下棋的棋子颜色
-        self.enabalemove=False          # 当前棋子有没有合法的落子点，如果没有就需要通过成绩比较判断输赢
-        self.pointlist=[]               # 如果有合法落子点，则记录所有的位置坐标的列表(一维列表，每个元素是一个棋子坐标)
+        self.enabalemove=[True,True]    # (黑与白)当前有没有合法的落子点
+        self.validpointlist=[]          # 如果有合法落子点，则记录所有的位置坐标的列表(一维列表，每个元素是一个棋子坐标)
         self.reverslist=[]              # 每个合法落子所对应的可翻转的对方棋子的坐标列表(二维列表，每个元素是一个列表)
-        self.endrevlst=[]               # 最终选择的落子所对应的可翻转的对方棋子的坐标列表(一维列表，每个元素是一个棋子坐标)
+        self.actual_revlst=[]           # 最终选择的落子所对应的可翻转的对方棋子的坐标列表(一维列表，每个元素是一个棋子坐标)
         self.round=0                    # 第几局比赛
-        self.roundscore=[0,0]           # 大比分
+        self.roundscore=[0,0]           # 大比分(黑比白)
         self.score = [0,0]              # 当前局比分(黑比白)
         self.step=0                     # 当前局步数
         self.record=[]                  # 棋谱记录.undo可以通过棋谱从第一步开始计算的形式，以计算时间换取存储空间(一维列表)
@@ -46,12 +50,12 @@ class Reversi:
         self.current_piece = self.start_piece
         self.score =2,2
         self.step = 0
-        self.clearlist(self.pointlist)
+        self.clearlist(self.validpointlist)
         self.clearlist(self.reverslist)
-        self.clearlist(self.endrevlst)
+        self.clearlist(self.actual_revlst)
         self.clearlist(self.record)
 
-        self.judge_allpoint()
+        self.caculate_allpoint()
 
 
     def isOnBoard(self,x, y):
@@ -60,7 +64,7 @@ class Reversi:
         else:
             return False
 
-    def judge_point(self, pos):
+    def caculate_point(self, pos):
         # 在棋盘上根据在行列pos[row,col]上的落子current_piece，计算可以被翻转的对方棋子，
         # 如果有棋子可以翻转，则返回棋子坐标的列表。否则返回False
         dir = [[1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [1, 1]]
@@ -93,14 +97,14 @@ class Reversi:
             return False
         return reverlist
 
-    def judge_allpoint(self):
+    def caculate_allpoint(self):
         # 判断当前棋子current_piece的所有可能的落子点
-        # 落子点坐标存在pointlist列表中
+        # 落子点坐标存在validpointlist列表中
         # 每个落子点对应的可以翻转的对方棋子的坐标存在reverslist列表中
-        #如果没有合法落子点(pointlist列表为空)，则返回False。否则返回True
-        self.clearlist(self.pointlist)
+        #如果没有合法落子点(validpointlist列表为空)，则返回False。否则返回True
+        self.clearlist(self.validpointlist)
         self.clearlist(self.reverslist)
-        self.clearlist(self.endrevlst)
+        self.clearlist(self.actual_revlst)
 
         # 清理辅助棋子数据
         for r in range(8):
@@ -111,21 +115,24 @@ class Reversi:
         for r in range(8):
             for c in range(8):
                 if self.board[r][c] == 0:
-                    revlst = self.judge_point([r, c])
+                    revlst = self.caculate_point([r, c])
                     if revlst == False:
                         # 该位置不能落子，开始下一个for循环
                         continue
                     else:
                         # 在复制的数据里记录位置数据
                         self.board[r][c] = 100 + len(revlst)
-                        self.pointlist.append([r,c])
+                        self.validpointlist.append([r,c])
                         self.reverslist.append(revlst)
         #设置当前棋子有无合法落子点的标志
-        if len(self.pointlist) == 0:
-            self.enabalemove = False    #此语句及变量应该可以取消，后期调试看再优化
+        p=self.current_piece                #棋子颜色转变为enablemove[]的下标
+        if p==-1:
+            p=0
+        if len(self.validpointlist) == 0:
+            self.enabalemove[p] = False     #此语句及变量应该可以取消，后期调试看再优化
             return False
         else:
-            self.enabalemove = True     #此语句及变量应该可以取消，后期调试看再优化
+            self.enabalemove[p] = True      #此语句及变量应该可以取消，后期调试看再优化
             return True
 
     def computermove(self):
@@ -136,7 +143,7 @@ class Reversi:
         maxcol = -1
         maxpiece = 101  # 最小值为101-100
         #遍历所有合法点
-        for r,c in self.pointlist:
+        for r,c in self.validpointlist:
             if self.board[r][c] >= maxpiece:  # 必须是>=
                 maxrow = r
                 maxcol = c
@@ -166,11 +173,11 @@ class Reversi:
         #判断玩家在在当前位置pos[row,col]处落子是否合法
         #如果合法则返回翻转棋子的列表，用于动画显示
         #否则返回False
-        if pos in self.pointlist:
+        if pos in self.validpointlist:
             #当前位置是合法位置，可以落子
-            p=self.pointlist.index(pos)                 #取得当前位置在合法落子点列表中的序号
+            p=self.validpointlist.index(pos)                 #取得当前位置在合法落子点列表中的序号
             for r,c in self.reverslist[p]:              #取得翻转棋子的位置，开始翻转棋子
-                self.endrevlst.append([r,c])
+                self.actual_revlst.append([r,c])
             return True
         else:
             return False
@@ -178,24 +185,38 @@ class Reversi:
 
     def addpiece(self,pos):
         #在当前位置pos[row,col]处落子
-        if pos in self.pointlist:
+        if pos in self.validpointlist:
             #当前位置是合法位置，可以落子
             r,c=pos
             self.board[r][c] = self.current_piece       #在当前位置落子
             #此处增加显示落子
             self.step+=1                                #记录步数
             self.record.append([r,c])                   #记录棋谱
-            p=self.pointlist.index(pos)                 #取得当前位置在合法落子点列表中的序号
+            p=self.validpointlist.index(pos)            #取得当前位置在合法落子点列表中的序号
             for r,c in self.reverslist[p]:              #取得翻转棋子的位置，开始翻转棋子
                 self.board[r][c]=self.current_piece
 
             self.getScore()                             #落子后重新计算分数
             self.current_piece=-self.current_piece      #落子后改变棋子颜色
-            self.judge_allpoint()                       #预先判断下一步的所有可能走法
+            self.caculate_allpoint()                       #预先判断下一步的所有可能走法
             return True
         else:
             return False
 
+    def judge_win(self):
+        #当整个棋盘都放满棋子，或者双方都没有合理走法（没有棋子可翻转），或者一方棋子全部被翻转（棋子数为0）
+        #则一局告终，棋子多的一方获胜
+        #返回-1，1代表黑棋或白棋胜；返回0说明是平局；返回-100则说明没有胜负，继续下棋
+        if self.score[0]+self.score[1]==64 or (self.enabalemove[0]==False and self.enabalemove[1]==False) or \
+                (self.score[0]==0 or self.score[1]==0):
+            if self.score[0]>self.score[1]:
+                return -1
+            elif self.score[0]<self.score[1]:
+                return 1
+            elif self.score[0]==self.score[1]:
+                return 0
+        else:
+            return -100
 
     def undo(self,stp):
         #stp为悔棋几步
@@ -208,7 +229,7 @@ class Reversi:
         rec=self.record[:]                              #复制下棋记录
         self.resetBoard()                               #棋盘复原
         for r,c in rec:
-            self.addpiece([r,c])                        #从零开始复盘
+            self.addpiece([r,c])                        #从头开始复盘
 
     def giveup(self):
         #认输，为对方加分
@@ -301,9 +322,9 @@ def piece_animate(win,background,animateimg,pos,dir):
         pygame.display.flip()
         i += dir
 
-def drawscreen_addpiece(win,reversi,surflist,validpress,bpos):
-    # 绘制棋盘,win为棋盘所在窗口，bpos为button的坐标[row,col]，此处只是为了测试程序，此参数可以删除
-    # surflist为背景图黑棋行，背景图白棋行，黑棋，白棋和提示棋的Surface组成的列表
+def drawscreen_addpiece(win,reversi,surflist,validpiece,bpos):
+    # 绘制棋盘,win为棋盘所在窗口，bpos为落子点的坐标[row,col]
+    # surflist为背景图黑棋行，背景图白棋行，黑棋，白棋、提示棋、黑棋带框、白棋带框、棋子翻转序列的Surface组成的列表
     #本程序用了一些屏幕坐标，后期可以改成列表将这些数据传入
 
     #更换背景左半边
@@ -324,7 +345,7 @@ def drawscreen_addpiece(win,reversi,surflist,validpress,bpos):
     pygame.display.flip()
 
     r,c=bpos
-    if validpress:
+    if validpiece:
         #有落子操作，开始显示当前落子棋
         px=c * GridSize + BoardTopLeft
         py=r * GridSize + BoardTopLeft
@@ -342,7 +363,7 @@ def drawscreen_addpiece(win,reversi,surflist,validpress,bpos):
             dir=-1
         else:
             dir=1
-        for p in reversi.endrevlst:
+        for p in reversi.actual_revlst:
             piece_animate(win,surflist[0],surflist[7],p,dir)
 
 
@@ -370,12 +391,14 @@ def drawscreen_addpiece(win,reversi,surflist,validpress,bpos):
     win.blit(back_right, [600, 0])
 
     hz = ['零', '壹', '贰', '叁', '肆', '伍']
-
     font1 = pygame.font.Font("FZLBFW.ttf", 20)  # 数字大小
     font2 = pygame.font.Font("FZLBFW.ttf", 32)  # 汉字大小
+
     # 显示button坐标
     str1 = str(bpos[0]) + " , " + str(bpos[1])
     str1_surf = font1.render(str1, 1, (0, 0, 0))
+    win.blit(str1_surf, [640, 237])
+
     # 显示当前局的比分
     scorestr1 = str(reversi.score[0]) + " : " + str(reversi.score[1])
     score_surf1 = font1.render(scorestr1, 1, (94, 39, 7))
@@ -385,9 +408,8 @@ def drawscreen_addpiece(win,reversi,surflist,validpress,bpos):
     # 显示步数
     str2 = str(reversi.step)
     str2_surf = font1.render(str2, 1, (0, 0, 0))
-
-    win.blit(str1_surf, [640, 237])
     win.blit(str2_surf, [830, 237])
+
     win.blit(score_surf1, [730, 85])
     win.blit(score_surf2, [710, 32])
     pygame.display.flip()
@@ -408,7 +430,7 @@ def cursor2button(x,y):
     return row,col
 
 
-#main
+
 #main
 
 pygame.init()
@@ -434,7 +456,7 @@ else:
 
 surflist.append(pygame.image.load("qizi_black.png"))
 surflist.append(pygame.image.load("qizi_white.png"))
-surflist.append(pygame.image.load("qizi_tishi.png"))
+surflist.append(pygame.image.load("qizi_tishi3.png"))
 surflist.append(pygame.image.load("qizi_black_box.png"))
 surflist.append(pygame.image.load("qizi_white_box.png"))
 surflist.append(pygame.image.load("qizi_animate.png"))
@@ -447,14 +469,18 @@ myreversi = Reversi(firstpiece)
 drawscreen_addpiece(screen, myreversi, surflist,False, [-1, -1])
 while True:
     #首先判胜负
-    if myreversi.enabalemove==False:
-        if myreversi.score[0] > myreversi.score[1]:
+
+
+
+    if myreversi.judge_win()>=-1:
+        if myreversi.judge_win()==-1:
             msg="本局黑方胜利"
             myreversi.roundscore[0]+=1
-        elif myreversi.score[0] < myreversi.score[1]:
+        elif myreversi.judge_win()==1:
             msg="本局白方胜利"
             myreversi.roundscore[1] += 1
         else:
+            msg = "本局平局"
             myreversi.roundscore[1] += 1
             myreversi.roundscore[0] += 1
         if drawmsgbox(screen, msgsurf, msg):
@@ -470,9 +496,7 @@ while True:
             sys.exit()
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            cursor_x=event.pos[0]                 #取得x坐标
-            cursor_y=event.pos[1]
-            row,col=cursor2button(cursor_x,cursor_y)
+            row,col=cursor2button(event.pos[0],event.pos[1])
             #刷新屏幕
             drawscreen_addpiece(screen,myreversi,surflist,False, [row,col])
 
@@ -516,22 +540,25 @@ while True:
                     myreversi.resetBoard()
                 drawscreen_addpiece(screen, myreversi, surflist, False, [-1, -1])
                 continue
+
             else:
                 # 棋盘上的点击
                 #要增加是否为合法位置的判断
-                revlst=myreversi.judgeplayermove([row,col])
-                if revlst:
-                    #是合法落子点，则执行以下步骤
-                    #显示最新落子
-                    #翻转落子
-                    #变更棋盘数据，再变更数据显示，切换当前玩家
+                if myreversi.judgeplayermove([row,col]):
+                    # 是合法落子点，则执行以下步骤
+                    # 刷新棋盘
+                    # 显示最新落子
+                    # 翻转落子
+                    # 变更棋盘数据
+                    # 显示提示，再变更数据显示，切换当前玩家
                     drawscreen_addpiece(screen, myreversi, surflist, True, [row, col])
 
                     if people2machine:
                         #电脑走棋
+                        #停顿1秒
+                        time.sleep(1)
                         rr,cc=myreversi.computermove()
-                        revlst = myreversi.judgeplayermove([rr, cc])
-
+                        myreversi.judgeplayermove([rr, cc])
                         drawscreen_addpiece(screen, myreversi, surflist, True,[rr, cc])
 
 
